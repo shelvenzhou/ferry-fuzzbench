@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-TARGET_PATH=$(realpath zlib_uncompress_fuzzer.cc)
+TARGET_PATH=$(dirname $(realpath $0))/zlib_uncompress_fuzzer.cc
 
 pushd $SOURCE_PATH
 

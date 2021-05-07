@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-TARGET_PATH=$(realpath libjpeg_turbo_fuzzer.cc)
+TARGET_PATH=$(dirname $(realpath $0))/libjpeg_turbo_fuzzer.cc
 
 pushd $SOURCE_PATH
 

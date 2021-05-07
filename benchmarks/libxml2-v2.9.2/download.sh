@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-TARGET_PATH=$(realpath target.cc)
+TARGET_PATH=$(dirname $(realpath $0))/target.cc
 
 pushd $SOURCE_PATH
 

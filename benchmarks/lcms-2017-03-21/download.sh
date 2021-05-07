@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-TARGET_PATH=$(realpath cms_transform_fuzzer.cc)
+TARGET_PATH=$(dirname $(realpath $0))/cms_transform_fuzzer.cc
 
 pushd $SOURCE_PATH
 
