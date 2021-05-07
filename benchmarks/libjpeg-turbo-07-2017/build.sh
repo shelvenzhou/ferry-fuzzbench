@@ -22,8 +22,9 @@ autoreconf -fiv
 make clean
 make -j $(nproc)
 
+mkdir -p $OUT/libjpeg-turbo
 $CXX $CXXFLAGS -std=c++11 libjpeg_turbo_fuzzer.cc -I . \
-    .libs/libturbojpeg.a $FUZZER_LIB -o $OUT/libjpeg_turbo_fuzzer
+    .libs/libturbojpeg.a $FUZZER_LIB -o $OUT/libjpeg-turbo/libjpeg_turbo_fuzzer
 # cp -r /opt/seeds $OUT/
 
 popd

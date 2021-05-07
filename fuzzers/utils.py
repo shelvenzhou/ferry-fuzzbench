@@ -90,12 +90,20 @@ def build_benchmarks(env=None):
     env['LIB_FUZZING_ENGINE'] = fuzzer_lib
 
     if env.get('SOURCE_PATH') is None:
-        print('SOURCE_PATH has to be set')
+        print('$SOURCE_PATH has to be set')
+        exit(-1)
+
+    if env.get('OUT') is None:
+        print('$OUT has to be set')
         exit(-1)
 
     for benchmark in os.listdir(BENCHMARKS_DIR):
         download_script = os.path.join(BENCHMARKS_DIR, benchmark, 'download.sh')
         build_script = os.path.join(BENCHMARKS_DIR, benchmark, 'build.sh')
+
+        if not os.path.exists(download_script):
+            print('Skip benchmark {benchmark}'.format(benchmark=benchmark))
+            continue
 
         fuzzer = os.getenv('FUZZER')
         print('Downloading benchmark {benchmark} with fuzzer {fuzzer}'.format(
@@ -105,6 +113,10 @@ def build_benchmarks(env=None):
         if os.getenv('USE_PROXY') is not None:
             args = ['proxychains', *args]
         subprocess.check_call(args, env=env)
+
+        print('Building benchmark {benchmark} with fuzzer {fuzzer}'.format(
+            benchmark=benchmark, fuzzer=fuzzer))
+        subprocess.check_call(['/bin/bash', '-ex', build_script], env=env)
 
 
 def append_flags(env_var, additional_flags, env=None):

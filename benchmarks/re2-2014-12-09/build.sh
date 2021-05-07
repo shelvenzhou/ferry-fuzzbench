@@ -20,7 +20,8 @@ git checkout 499ef7eff7455ce9c9fae86111d4a77b6ac335de
 make clean
 make -j $(nproc)
 
+mkdir -p $OUT/re2
 $CXX $CXXFLAGS target.cc -I . obj/libre2.a -lpthread $FUZZER_LIB \
-    -o $OUT/fuzzer
+    -o $OUT/re2/fuzzer
 
 popd

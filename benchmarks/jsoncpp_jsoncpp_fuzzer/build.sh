@@ -27,10 +27,11 @@ cmake -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
 make clean
 make -j $(nproc)
 
+mkdir -p $OUT/jsoncpp
 # Compile fuzzer.
 $CXX $CXXFLAGS -I../include $FUZZER_LIB \
-    ../src/test_lib_json/fuzz.cpp -o $OUT/jsoncpp_fuzzer \
-    src/lib_json/libjsoncpp.a
+    ../src/test_lib_json/fuzz.cpp -o $OUT/jsoncpp/jsoncpp_fuzzer \
+    lib/libjsoncpp.a
 
 # # Add dictionary.
 # cp $SRC/jsoncpp/src/test_lib_json/fuzz.dict $OUT/jsoncpp_fuzzer.dict

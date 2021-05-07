@@ -18,14 +18,14 @@ pushd $SOURCE_PATH
 cd vorbis
 rm -rf install
 mkdir install
-INSTALL_PATH=$(realpath install)
+INSTALL_DIR=$(realpath install)
 cd ..
 
 cd ogg
 git checkout c8391c2b267a7faf9a09df66b1f7d324e9eb7766
 ./autogen.sh
 ./configure \
-    --prefix="$INSTALL_PATH" \
+    --prefix="$INSTALL_DIR" \
     --enable-static \
     --disable-shared \
     --disable-crc
@@ -44,11 +44,12 @@ git checkout c1c2831fc7306d5fbd7bc800324efd12b28d327f
 make clean
 make -j $(nproc)
 make install
-cd ..
 
+mkdir -p $OUT/vorbis
 $CXX $CXXFLAGS -std=c++11 decode_fuzzer.cc \
-    -o $OUT/decode_fuzzer -L"$INSTALL_DIR/lib" -I"$INSTALL_DIR/include" \
+    -o $OUT/vorbis/decode_fuzzer -L"$INSTALL_DIR/lib" -I"$INSTALL_DIR/include" \
     $FUZZER_LIB -lvorbisfile -lvorbis -logg
 # cp -r /opt/seeds $OUT/
+cd ..
 
 popd

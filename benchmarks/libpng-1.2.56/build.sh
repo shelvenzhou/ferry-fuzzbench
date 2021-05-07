@@ -20,8 +20,9 @@ cd libpng-1.2.56
 make clean
 make -j $(nproc)
 
+mkdir -p $OUT/libpng
 $CXX $CXXFLAGS -std=c++11 target.cc .libs/libpng12.a $FUZZER_LIB -I . -lz \
-    -o $OUT/libpng_read_fuzzer
+    -o $OUT/libpng/libpng_read_fuzzer
 # cp -r /opt/seeds $OUT/
 
 popd

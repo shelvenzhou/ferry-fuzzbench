@@ -26,7 +26,8 @@ CCLD="$CXX $CXXFLAGS" ./configure --without-python --with-threads=no \
 make clean
 make -j $(nproc)
 
+mkdir -p $OUT/libxml2
 $CXX $CXXFLAGS -std=c++11 target.cc -I include .libs/libxml2.a \
-    $FUZZER_LIB -o $OUT/xml
+    $FUZZER_LIB -o $OUT/libxml2/xml
 
 popd

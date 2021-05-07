@@ -37,9 +37,10 @@ git checkout cd02d359a6d0455e9d16b87bf9665961c4699538
 make clean
 make all -j $(nproc)
 
+mkdir -p $OUT/freetype2
 $CXX $CXXFLAGS -std=c++11 -I include -I . -I $ARCHIVE_PATH/include \
     src/tools/ftfuzzer/ftfuzzer.cc objs/.libs/libfreetype.a $FUZZER_LIB \
     -L $ARCHIVE_PATH/lib -larchive \
-    -o $OUT/ftfuzzer
+    -o $OUT/freetype2/ftfuzzer
 
 popd

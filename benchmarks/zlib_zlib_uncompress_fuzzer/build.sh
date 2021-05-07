@@ -26,8 +26,9 @@ make -j$(nproc) all
 # Do not make check as there are tests that fail when compiled with MSAN.
 # make -j$(nproc) check
 
+mkdir -p $OUT/zlib
 b=$(basename -s .cc zlib_uncompress_fuzzer.cc)
-$CXX $CXXFLAGS -std=c++11 -I. zlib_uncompress_fuzzer.cc -o $OUT/$b $FUZZER_LIB ./libz.a
+$CXX $CXXFLAGS -std=c++11 -I. zlib_uncompress_fuzzer.cc -o $OUT/zlib/$b $FUZZER_LIB ./libz.a
 
 # zip $OUT/seed_corpus.zip *.*
 

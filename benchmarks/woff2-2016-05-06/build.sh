@@ -38,7 +38,8 @@ for f in ../brotli/dec/*.c ../brotli/enc/*.cc; do
 done
 wait
 
+mkdir -p $OUT/woff2
 $CXX $CXXFLAGS *.o $FUZZER_LIB target.cc -I src \
-    -o $OUT/convert_woff2ttf_fuzzer
+    -o $OUT/woff2/convert_woff2ttf_fuzzer
 
 popd

@@ -25,7 +25,8 @@ make -j $(nproc)
 # mkdir $OUT/seeds
 # cp nad/* $OUT/seeds
 
+mkdir -p $OUT/PROJ
 $CXX $CXXFLAGS -std=c++11 -I src test/fuzzers/standard_fuzzer.cpp \
-    src/.libs/libproj.a $FUZZER_LIB -o $OUT/standard_fuzzer -lpthread
+    src/.libs/libproj.a $FUZZER_LIB -o $OUT/PROJ/standard_fuzzer -lpthread
 
 popd
