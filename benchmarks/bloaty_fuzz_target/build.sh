@@ -22,6 +22,7 @@ rm -rf build
 mkdir build
 cd build
 cmake -G Ninja -DBUILD_TESTING=false ..
+# add LLVM's libc++.so.1 to library search path
 LD_LIBRARY_PATH="$(realpath ~/.local/lib):$LD_LIBRARY_PATH" ninja -j$(nproc)
 
 mkdir -p $OUT/bloaty
