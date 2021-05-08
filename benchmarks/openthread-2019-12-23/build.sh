@@ -46,6 +46,7 @@ export CPPFLAGS="                                     \
 sed -i 's/ -Werror//g' config*  # Disable compiler warnings.
 ./configure --enable-fuzz-targets --enable-cli --enable-ftd --enable-joiner \
     --enable-ncp --disable-docs
+make clean
 make V=1 -j $(nproc)
 
 mkdir -p $OUT/openthread
