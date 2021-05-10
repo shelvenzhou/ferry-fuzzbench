@@ -89,13 +89,20 @@ def build_benchmarks(env=None):
     fuzzer_lib = env['FUZZER_LIB']
     env['LIB_FUZZING_ENGINE'] = fuzzer_lib
 
-    if env.get('SOURCE_PATH') is None:
-        print('$SOURCE_PATH has to be set')
+    source_base = env.get('SOURCE_BASE')
+    if source_base is None:
+        print('$SOURCE_BASE has to be set')
         exit(-1)
 
-    if env.get('OUT') is None:
-        print('$OUT has to be set')
-        exit(-1)
+    fuzzer = os.getenv('FUZZER')
+    source_path = os.path.join(source_base, "{}-source".format(fuzzer))
+    target_path = os.path.join(source_base, "{}-target".format(fuzzer))
+
+    os.makedirs(source_path, exist_ok=True)
+    os.makedirs(target_path, exist_ok=True)
+
+    env['SOURCE_PATH'] = source_path
+    env['OUT'] = target_path
 
     whitelist = [
         'harfbuzz-1.3.2',
@@ -128,7 +135,6 @@ def build_benchmarks(env=None):
             print('Skip benchmark {benchmark}'.format(benchmark=benchmark))
             continue
 
-        fuzzer = os.getenv('FUZZER')
         print('Downloading benchmark {benchmark} with fuzzer {fuzzer}'.format(
             benchmark=benchmark, fuzzer=fuzzer))
 
