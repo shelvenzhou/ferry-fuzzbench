@@ -97,7 +97,30 @@ def build_benchmarks(env=None):
         print('$OUT has to be set')
         exit(-1)
 
+    whitelist = [
+        'harfbuzz-1.3.2',
+        'vorbis-2017-12-11',
+        'woff2-2016-05-06',
+        'mbedtls_fuzz_dtlsclient',
+        'openthread-2019-12-23',
+        'libpcap_fuzz_both',
+        'freetype2-2017',
+        'zlib_zlib_uncompress_fuzzer',
+        're2-2014-12-09',
+        'libjpeg-turbo-07-2017',
+        'bloaty_fuzz_target',
+        'jsoncpp_jsoncpp_fuzzer',
+        'libxml2-v2.9.2',
+        'libpng-1.2.56',
+        'php_php-fuzz-parser',
+        'lcms-2017-03-21',
+        'proj4-2017-08-14',
+    ]
+
     for benchmark in os.listdir(BENCHMARKS_DIR):
+        if benchmark not in whitelist:
+            continue
+
         download_script = os.path.join(BENCHMARKS_DIR, benchmark, 'download.sh')
         build_script = os.path.join(BENCHMARKS_DIR, benchmark, 'build.sh')
 
