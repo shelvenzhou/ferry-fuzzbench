@@ -30,8 +30,15 @@ mkdir -p $OUT/libpcap
 # build fuzz targets
 for target in pcap filter both
 do
-    $CC $CFLAGS -I.. -c ../testprogs/fuzz/fuzz_$target.c -o fuzz_$target.o
-    $CXX $CXXFLAGS fuzz_$target.o -o $OUT/libpcap/fuzz_$target libpcap.a $LIB_FUZZING_ENGINE
+    if [ -v USE_POSIX_TARGET ]
+    then
+        $CC $CFLAGS -I.. -c ../testprogs/fuzz/fuzz_$target.c -o fuzz_$target.o
+        $CC $CFLAGS -I.. -c ../testprogs/fuzz/onefile.c -o main.o
+        $CXX $CXXFLAGS main.o fuzz_$target.o -o $OUT/libpcap/fuzz_$target libpcap.a $LIB_FUZZING_ENGINE
+    else
+        $CC $CFLAGS -I.. -c ../testprogs/fuzz/fuzz_$target.c -o fuzz_$target.o
+        $CXX $CXXFLAGS fuzz_$target.o -o $OUT/libpcap/fuzz_$target libpcap.a $LIB_FUZZING_ENGINE
+    fi
 done
 
 # # export other associated stuff

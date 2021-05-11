@@ -16,7 +16,6 @@
 pushd $SOURCE_PATH
 
 cd harfbuzz
-git checkout f73a87d9a8c76a181794b74b527ea268048f78e3
 ./autogen.sh
 make clean
 (cd ./src/hb-ucdn && CCLD="$CXX $CXXFLAGS" make)

@@ -119,7 +119,6 @@ def build_benchmarks(env=None):
         'jsoncpp_jsoncpp_fuzzer',
         'libxml2-v2.9.2',
         'libpng-1.2.56',
-        'php_php-fuzz-parser',
         'lcms-2017-03-21',
         'proj4-2017-08-14',
     ]

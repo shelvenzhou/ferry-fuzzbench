@@ -16,7 +16,6 @@
 pushd $SOURCE_PATH
 
 cd PROJ
-git checkout d00501750b210a73f9fb107ac97a683d4e3d8e7a
 ./autogen.sh
 ./configure
 make clean
