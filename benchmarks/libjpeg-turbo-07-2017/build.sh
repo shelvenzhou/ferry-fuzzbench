@@ -18,7 +18,7 @@ pushd $SOURCE_PATH
 cd libjpeg-turbo
 git checkout b0971e47d76fdb81270e93bbf11ff5558073350d
 autoreconf -fiv
-./configure
+./configure --disable-shared --without-simd
 make clean
 make -j $(nproc)
 

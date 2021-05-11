@@ -22,7 +22,7 @@ cd libxml2
 git checkout -f v2.9.2
 ./autogen.sh
 CCLD="$CXX $CXXFLAGS" ./configure --without-python --with-threads=no \
-    --with-zlib=no --with-lzma=no
+    --with-zlib=no --with-lzma=no --disable-shared
 make clean
 make -j $(nproc)
 

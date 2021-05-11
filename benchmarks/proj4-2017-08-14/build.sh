@@ -17,7 +17,7 @@ pushd $SOURCE_PATH
 
 cd PROJ
 ./autogen.sh
-./configure
+./configure --disable-shared
 make clean
 make -j $(nproc)
 

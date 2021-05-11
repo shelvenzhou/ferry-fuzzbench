@@ -80,7 +80,7 @@ def build_benchmark(env=None):
     subprocess.check_call(['/bin/bash', '-ex', build_script], env=env)
 
 
-def build_benchmarks(env=None):
+def build_benchmarks(env=None, unsupported_benchmarks=[]):
     """Build a benchmark using fuzzer library."""
     if not env:
         env = os.environ.copy()
@@ -124,7 +124,9 @@ def build_benchmarks(env=None):
     ]
 
     for benchmark in os.listdir(BENCHMARKS_DIR):
-        if benchmark not in whitelist:
+        if benchmark in unsupported_benchmarks or benchmark not in whitelist:
+            print('Skip unsupported benchmark {benchmark} with fuzzer {fuzzer}'.format(
+                benchmark=benchmark, fuzzer=fuzzer))
             continue
 
         download_script = os.path.join(BENCHMARKS_DIR, benchmark, 'download.sh')
