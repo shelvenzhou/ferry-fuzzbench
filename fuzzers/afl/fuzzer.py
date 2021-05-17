@@ -20,7 +20,10 @@ import subprocess
 
 from fuzzers import utils
 
-os.environ['FUZZER'] = "AFL"
+os.environ['FUZZER'] = 'AFL'
+
+PATH_TO_LIBCXX = '/home/ferry/.local/lib'
+
 
 def prepare_build_environment():
     """Set environment variables used to build targets for AFL-based
@@ -73,7 +76,7 @@ def get_stats(output_corpus, fuzzer_log):  # pylint: disable=unused-argument
     return json.dumps(stats)
 
 
-def prepare_fuzz_environment(input_corpus):
+def prepare_fuzz_environment():
     """Prepare to fuzz with AFL or another AFL-based fuzzer."""
     # Tell AFL to not use its terminal UI so we get usable logs.
     os.environ['AFL_NO_UI'] = '1'
@@ -90,8 +93,15 @@ def prepare_fuzz_environment(input_corpus):
     # Shuffle the queue
     os.environ['AFL_SHUFFLE_QUEUE'] = '1'
 
+    ld_library_path = os.environ.get('LD_LIBRARY_PATH')
+    if ld_library_path is None:
+        ld_library_path = ''
+
+    ld_library_path = PATH_TO_LIBCXX + ':' + ld_library_path
+    os.environ['LD_LIBRARY_PATH'] = ld_library_path
+
     # AFL needs at least one non-empty seed to start.
-    utils.create_seed_file_for_empty_corpus(input_corpus)
+    # utils.create_seed_file_for_empty_corpus(input_corpus)
 
 
 def check_skip_det_compatible(additional_flags):
@@ -103,16 +113,19 @@ def check_skip_det_compatible(additional_flags):
     return True
 
 
-def run_afl_fuzz(input_corpus,
+def run_afl_fuzz(afl_path,
+                 input_corpus,
                  output_corpus,
                  target_binary,
+                 dictionary_path=None,
+                 timeout=None,
                  additional_flags=None,
                  hide_output=False):
     """Run afl-fuzz."""
     # Spawn the afl fuzzing process.
-    print('[run_afl_fuzz] Running target with afl-fuzz')
+    print('[run_afl_fuzz] Running target {} with afl-fuzz'.format(target_binary))
     command = [
-        './afl-fuzz',
+        afl_path,
         '-i',
         input_corpus,
         '-o',
@@ -123,15 +136,20 @@ def run_afl_fuzz(input_corpus,
         '-t',
         '1000+',  # Use same default 1 sec timeout, but add '+' to skip hangs.
     ]
+
+    if timeout is not None:
+        command = ['timeout', '-s', 'KILL', timeout, *command]
+
     # Use '-d' to skip deterministic mode, as long as it it compatible with
     # additional flags.
     if not additional_flags or check_skip_det_compatible(additional_flags):
         command.append('-d')
     if additional_flags:
         command.extend(additional_flags)
-    dictionary_path = utils.get_dictionary_path(target_binary)
+
     if dictionary_path:
         command.extend(['-x', dictionary_path])
+
     command += [
         '--',
         target_binary,
@@ -140,15 +158,13 @@ def run_afl_fuzz(input_corpus,
         '2147483647'
     ]
     print('[run_afl_fuzz] Running command: ' + ' '.join(command))
+
     output_stream = subprocess.DEVNULL if hide_output else None
     subprocess.check_call(command, stdout=output_stream, stderr=output_stream)
 
 
-def fuzz(input_corpus, output_corpus, target_binary):
+def fuzz(afl_path, input_corpus, output_corpus, target_binary, dictionary_path=None, timeout=None):
     """Run afl-fuzz on target."""
-    prepare_fuzz_environment(input_corpus)
+    prepare_fuzz_environment()
 
-    run_afl_fuzz(input_corpus, output_corpus, target_binary)
-
-if __name__ == "__main__":
-    build_all()
+    run_afl_fuzz(afl_path, input_corpus, output_corpus, target_binary, dictionary_path=dictionary_path, timeout=timeout)

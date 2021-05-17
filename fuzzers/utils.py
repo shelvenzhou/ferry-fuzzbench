@@ -26,6 +26,7 @@ import yaml
 ROOT_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 BENCHMARKS_DIR = os.path.join(ROOT_DIR, 'benchmarks')
 FUZZERS_DIR = os.path.join(ROOT_DIR, 'fuzzers')
+SEEDS_DIR = os.path.join(ROOT_DIR, 'seeds')
 
 # Keep all fuzzers at same optimization level until fuzzer explicitly needs or
 # specifies it.
@@ -161,9 +162,9 @@ def append_flags(env_var, additional_flags, env=None):
     env[env_var] = ' '.join(flags)
 
 
-def get_config_value(attribute):
+def get_config_value(benchmark, attribute):
     """Gets config attribute value from benchmark config yaml file."""
-    with open(BENCHMARK_CONFIG_YAML_PATH) as file_handle:
+    with open(os.path.join(BENCHMARKS_DIR, benchmark, 'benchmark.yaml')) as file_handle:
         config = yaml.load(file_handle, yaml.SafeLoader)
         return config.get(attribute)
 
