@@ -1,6 +1,7 @@
 import multiprocessing
 import os
 from datetime import datetime
+import yaml
 
 from fuzzers import utils
 from fuzzers.afl import fuzzer
@@ -34,6 +35,8 @@ if __name__ == "__main__":
     # fuzzer.build_all()
 
     fuzz_timestamp = datetime.now().isoformat()
+    fuzz_timeout = '6h'
+    processes = 16
 
     output_base = DEFAULT_OUTPUT_BASE
     if os.environ.get('OUTPUT_BASE') is not None:
@@ -48,7 +51,19 @@ if __name__ == "__main__":
         print('Specify afl-fuzz with $AFL_PATH')
         exit(-1)
 
-    pool = multiprocessing.Pool(processes=10)
+    output_folder = os.path.join(output_base, '{}-{}'.format(tested_fuzzer, fuzz_timestamp))
+    os.makedirs(output_folder)
+
+    with open(os.path.join(output_folder, 'config.yaml'), 'w+') as f:
+        yaml.dump({
+            'fuzzer': tested_fuzzer,
+            'timestamp': fuzz_timestamp,
+            'input_corpus': get_input_corpus(''),
+            'timeout': fuzz_timeout,
+            'processes': processes,
+        }, f)
+
+    pool = multiprocessing.Pool(processes=processes)
     for benchmark in os.listdir(utils.BENCHMARKS_DIR):
         project = utils.get_config_value(benchmark, 'project')
         fuzz_target = utils.get_config_value(benchmark, 'fuzz_target')
@@ -59,7 +74,7 @@ if __name__ == "__main__":
         if not os.path.exists(dictionary_path):
             dictionary_path = None
 
-        output_corpus = os.path.join(output_base, '{}-{}'.format(tested_fuzzer, fuzz_timestamp), project)
+        output_corpus = os.path.join(output_folder, project)
         os.makedirs(output_corpus)
 
         target_binary = os.path.join(source_base, "{}-target".format(tested_fuzzer), project, fuzz_target)
@@ -68,7 +83,7 @@ if __name__ == "__main__":
             project=project, fuzz_target=fuzz_target, fuzzer=tested_fuzzer))
 
         pool.apply_async(fuzzer.fuzz, (afl_path, input_corpus,
-                         output_corpus, target_binary, dictionary_path, '6h'))
+                         output_corpus, target_binary, dictionary_path, fuzz_timeout))
 
     pool.close()
     pool.join()
