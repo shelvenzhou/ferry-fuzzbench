@@ -59,7 +59,7 @@ if __name__ == "__main__":
         if not os.path.exists(dictionary_path):
             dictionary_path = None
 
-        output_corpus = os.path.join(output_base, project, fuzz_timestamp)
+        output_corpus = os.path.join(output_base, '{}-{}'.format(tested_fuzzer, fuzz_timestamp), project)
         os.makedirs(output_corpus)
 
         target_binary = os.path.join(source_base, "{}-target".format(tested_fuzzer), project, fuzz_target)
