@@ -15,7 +15,7 @@
 
 pushd $SOURCE_PATH
 
-cd libpng-1.2.56
+cd libpng
 ./configure
 make clean
 make -j $(nproc)

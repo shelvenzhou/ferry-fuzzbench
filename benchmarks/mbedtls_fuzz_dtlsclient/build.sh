@@ -18,6 +18,7 @@
 pushd $SOURCE_PATH
 
 cd mbedtls
+git checkout -f b6800788ca432e8df1de3c7a55e894b9a2e49ba9
 # build project
 perl scripts/config.pl set MBEDTLS_PLATFORM_TIME_ALT
 git -C crypto checkout -f 819799cfc68e4c4381673a8a27af19802c8263f2

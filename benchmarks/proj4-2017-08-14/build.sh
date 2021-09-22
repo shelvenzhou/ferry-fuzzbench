@@ -15,7 +15,7 @@
 
 pushd $SOURCE_PATH
 
-cd PROJ
+cd proj4
 ./autogen.sh
 ./configure --disable-shared
 make clean
