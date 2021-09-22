@@ -22,6 +22,9 @@ from fuzzers import utils
 
 os.environ['FUZZER'] = "QSYM"
 
+PATH_TO_LIBCXX = '/home/ferry/.local/lib'
+
+
 def prepare_build_environment():
     cxxflags = ['-stdlib=libc++', '-std=c++11']
     utils.append_flags('CXXFLAGS', cxxflags)
@@ -71,7 +74,7 @@ def get_stats(output_corpus, fuzzer_log):  # pylint: disable=unused-argument
     return json.dumps(stats)
 
 
-def prepare_fuzz_environment(input_corpus):
+def prepare_fuzz_environment():
     """Prepare to fuzz with AFL or another AFL-based fuzzer."""
     # Tell AFL to not use its terminal UI so we get usable logs.
     os.environ['AFL_NO_UI'] = '1'
@@ -88,8 +91,15 @@ def prepare_fuzz_environment(input_corpus):
     # Shuffle the queue
     os.environ['AFL_SHUFFLE_QUEUE'] = '1'
 
+    ld_library_path = os.environ.get('LD_LIBRARY_PATH')
+    if ld_library_path is None:
+        ld_library_path = ''
+
+    ld_library_path = PATH_TO_LIBCXX + ':' + ld_library_path
+    os.environ['LD_LIBRARY_PATH'] = ld_library_path
+
     # AFL needs at least one non-empty seed to start.
-    utils.create_seed_file_for_empty_corpus(input_corpus)
+    # utils.create_seed_file_for_empty_corpus(input_corpus)
 
 
 def check_skip_det_compatible(additional_flags):
@@ -101,16 +111,33 @@ def check_skip_det_compatible(additional_flags):
     return True
 
 
-def run_afl_fuzz(input_corpus,
+def run_afl_fuzz(afl_path,
+                 input_corpus,
                  output_corpus,
                  target_binary,
+                 dictionary_path=None,
+                 master=False,
+                 num=0,
+                 timeout=None,
                  additional_flags=None,
                  hide_output=False):
     """Run afl-fuzz."""
     # Spawn the afl fuzzing process.
-    print('[run_afl_fuzz] Running target with afl-fuzz')
-    command = [
-        './afl-fuzz',
+    print('[run_afl_fuzz] Running target {} with afl-fuzz'.format(target_binary))
+
+    if timeout is not None:
+        command = ['timeout', '-s', 'INT', timeout]
+
+    command += [
+        afl_path,
+    ]
+
+    if master:
+        command += ['-M', 'afl-master-{}'.format(num)]
+    else:
+        command += ['-S', 'afl-slave-{}'.format(num)]
+
+    command += [
         '-i',
         input_corpus,
         '-o',
@@ -121,32 +148,64 @@ def run_afl_fuzz(input_corpus,
         '-t',
         '1000+',  # Use same default 1 sec timeout, but add '+' to skip hangs.
     ]
+
     # Use '-d' to skip deterministic mode, as long as it it compatible with
     # additional flags.
     if not additional_flags or check_skip_det_compatible(additional_flags):
         command.append('-d')
     if additional_flags:
         command.extend(additional_flags)
-    dictionary_path = utils.get_dictionary_path(target_binary)
+
     if dictionary_path:
         command.extend(['-x', dictionary_path])
+
     command += [
         '--',
         target_binary,
-        # Pass INT_MAX to afl the maximize the number of persistent loops it
-        # performs.
-        '2147483647'
+        '@@'
     ]
     print('[run_afl_fuzz] Running command: ' + ' '.join(command))
+
     output_stream = subprocess.DEVNULL if hide_output else None
     subprocess.check_call(command, stdout=output_stream, stderr=output_stream)
 
 
-def fuzz(input_corpus, output_corpus, target_binary):
-    """Run afl-fuzz on target."""
-    prepare_fuzz_environment(input_corpus)
+def run_qsym(qsym_path,
+             output_corpus,
+             target_binary,
+             num=0,
+             timeout=None,
+             hide_output=False):
+    """Run QSYM."""
+    print('[run_qsym] Running target {} with qsym'.format(target_binary))
 
-    run_afl_fuzz(input_corpus, output_corpus, target_binary)
+    if timeout is not None:
+        command = ['timeout', '-s', 'INT', timeout]
 
-if __name__ == "__main__":
-    build_all()
+    command += [
+        qsym_path,
+        '-a',
+        'afl-slave-{}'.format(num),
+        '-o',
+        output_corpus,
+        '-n',
+        'qsym-{}'.format(num),
+        '--',
+        target_binary,
+        '@@'
+    ]
+    print('[run_qsym] Running command: ' + ' '.join(command))
+
+    output_stream = subprocess.DEVNULL if hide_output else None
+    subprocess.check_call(command, stdout=output_stream, stderr=output_stream)
+
+
+# def fuzz(afl_path, qsym_path, input_corpus, output_corpus, target_binary, dictionary_path=None, num=0, timeout=None):
+#     """Run afl-fuzz on target."""
+#     prepare_fuzz_environment()
+
+#     run_afl_fuzz(afl_path, input_corpus, output_corpus, target_binary,
+#                  dictionary_path=dictionary_path, master=True, num=num, timeout=timeout)
+#     run_afl_fuzz(afl_path, input_corpus, output_corpus, target_binary,
+#                  dictionary_path=dictionary_path, master=False, num=num, timeout=timeout)
+#     run_qsym(qsym_path, output_corpus, target_binary, num=num, timeout=timeout)
