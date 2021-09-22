@@ -4,13 +4,13 @@ from datetime import datetime
 import yaml
 
 from fuzzers import utils
-from fuzzers.afl import fuzzer
+from fuzzers.angora import fuzzer
 
 DEFAULT_SOURCE_BASE = os.path.join(utils.ROOT_DIR, '..', 'benchmarks')
 DEFAULT_OUTPUT_BASE = os.path.join(utils.ROOT_DIR, '..', 'outputs')
-DEFAULT_AFL_PATH = os.path.join(utils.ROOT_DIR, '..', '..', 'tools', 'AFL', 'afl-fuzz')
+DEFAULT_ANGORA_PATH = os.path.join(utils.ROOT_DIR, '..', '..', 'tools', 'Angora', 'angora_fuzzer')
 
-FUZZBENCH_INPUTS = os.path.join(utils.ROOT_DIR, 'seeds', 'ferry-inputs')
+FUZZBENCH_INPUTS = os.path.join(utils.ROOT_DIR, 'seeds', 'fuzzbench-inputs')
 
 
 def get_input_corpus(benchmark):
@@ -42,15 +42,14 @@ def fuzz_targets(fuzz_timeout='6h', processes=16):
     elif not os.path.exists(DEFAULT_OUTPUT_BASE):
         os.makedirs(DEFAULT_OUTPUT_BASE, exist_ok=True)
 
-    afl_path = DEFAULT_AFL_PATH
-    if os.environ.get('AFL_PATH') is not None:
-        afl_path = os.environ['AFL_PATH']
-    elif not os.path.exists(DEFAULT_AFL_PATH):
-        print('Specify afl-fuzz with $AFL_PATH')
+    angora_path = DEFAULT_ANGORA_PATH
+    if os.environ.get('ANGORA_PATH') is not None:
+        angora_path = os.environ['ANGORA_PATH']
+    elif not os.path.exists(DEFAULT_ANGORA_PATH):
+        print('Specify angora_fuzzer with $ANGORA_PATH')
         exit(-1)
 
     output_folder = os.path.join(output_base, '{}-{}'.format(tested_fuzzer, fuzz_timestamp))
-    os.makedirs(output_folder)
 
     with open(os.path.join(output_folder, 'config.yaml'), 'w+') as f:
         yaml.dump({
@@ -80,8 +79,8 @@ def fuzz_targets(fuzz_timeout='6h', processes=16):
         print('Fuzz {project}: {fuzz_target} with fuzzer {fuzzer}'.format(
             project=project, fuzz_target=fuzz_target, fuzzer=tested_fuzzer))
 
-        pool.apply_async(fuzzer.fuzz, (afl_path, input_corpus,
-                         output_corpus, target_binary, dictionary_path, fuzz_timeout))
+        pool.apply_async(fuzzer.fuzz, (angora_path, input_corpus,
+                         output_corpus, target_binary, fuzz_timeout))
 
     pool.close()
     pool.join()

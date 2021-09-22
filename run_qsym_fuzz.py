@@ -4,13 +4,14 @@ from datetime import datetime
 import yaml
 
 from fuzzers import utils
-from fuzzers.afl import fuzzer
+from fuzzers.qsym import fuzzer
 
 DEFAULT_SOURCE_BASE = os.path.join(utils.ROOT_DIR, '..', 'benchmarks')
 DEFAULT_OUTPUT_BASE = os.path.join(utils.ROOT_DIR, '..', 'outputs')
 DEFAULT_AFL_PATH = os.path.join(utils.ROOT_DIR, '..', '..', 'tools', 'AFL', 'afl-fuzz')
+DEFAULT_QSYM_PATH = os.path.join(utils.ROOT_DIR, '..', '..', 'tools', 'qsym', 'bin', 'run_qsym_afl.py')
 
-FUZZBENCH_INPUTS = os.path.join(utils.ROOT_DIR, 'seeds', 'ferry-inputs')
+FUZZBENCH_INPUTS = os.path.join(utils.ROOT_DIR, 'seeds', 'fuzzbench-inputs')
 
 
 def get_input_corpus(benchmark):
@@ -62,7 +63,10 @@ def fuzz_targets(fuzz_timeout='6h', processes=16):
         }, f)
 
     pool = multiprocessing.Pool(processes=processes)
+    count = 0
     for benchmark in os.listdir(utils.BENCHMARKS_DIR):
+        count += 1
+
         project = utils.get_config_value(benchmark, 'project')
         fuzz_target = utils.get_config_value(benchmark, 'fuzz_target')
 
@@ -80,8 +84,13 @@ def fuzz_targets(fuzz_timeout='6h', processes=16):
         print('Fuzz {project}: {fuzz_target} with fuzzer {fuzzer}'.format(
             project=project, fuzz_target=fuzz_target, fuzzer=tested_fuzzer))
 
-        pool.apply_async(fuzzer.fuzz, (afl_path, input_corpus,
-                         output_corpus, target_binary, dictionary_path, fuzz_timeout))
+        fuzzer.prepare_fuzz_environment()
+
+        pool.apply_async(fuzzer.run_afl_fuzz, (afl_path, input_corpus,
+                         output_corpus, target_binary, dictionary_path, True, count, fuzz_timeout))
+        pool.apply_async(fuzzer.run_afl_fuzz, (afl_path, input_corpus,
+                         output_corpus, target_binary, dictionary_path, False, count, fuzz_timeout))
+        pool.apply_async(fuzzer.run_qsym, (qsym_path, output_corpus, target_binary, count, fuzz_timeout))
 
     pool.close()
     pool.join()
