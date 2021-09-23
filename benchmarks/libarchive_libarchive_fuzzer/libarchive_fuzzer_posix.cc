@@ -15,6 +15,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include <stddef.h>
 #include <stdint.h>
+#include <fstream>
 #include <vector>
 
 #include "archive.h"
