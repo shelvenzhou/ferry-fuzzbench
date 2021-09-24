@@ -24,7 +24,7 @@ os.environ['FUZZER'] = 'Angora'
 
 
 def prepare_build_environment():
-    cxxflags = ['-stdlib=libc++', '-std=c++11']
+    cxxflags = ['-stdlib=libc++', '-std=c++11', '-pthread']
     utils.append_flags('CXXFLAGS', cxxflags)
 
     os.environ['ANGORA_CC'] = '/home/ferry/Documents/tools/Angora/clang+llvm-7.0.0/bin/clang'

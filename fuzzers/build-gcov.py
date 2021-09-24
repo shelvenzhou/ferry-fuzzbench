@@ -25,8 +25,8 @@ os.environ['FUZZER'] = "GCOV2"
 PATH_TO_LIBCXX = '/home/ferry/.local/lib'
 
 def prepare_build_environment():
-    cflags = ['-fprofile-arcs', '-ftest-coverage']
-    cxxflags = ['-fprofile-arcs', '-ftest-coverage', '-std=c++11']
+    cflags = ['-fprofile-arcs', '-ftest-coverage', '-pthread']
+    cxxflags = ['-fprofile-arcs', '-ftest-coverage', '-std=c++11', '-pthread']
     utils.append_flags('CFLAGS', cflags)
     utils.append_flags('CXXFLAGS', cxxflags)
 

@@ -26,7 +26,7 @@ PATH_TO_LIBCXX = '/home/ferry/.local/lib'
 
 
 def prepare_build_environment():
-    cxxflags = ['-stdlib=libc++', '-std=c++11']
+    cxxflags = ['-stdlib=libc++', '-std=c++11', '-pthread']
     utils.append_flags('CXXFLAGS', cxxflags)
 
     os.environ['CC'] = 'clang'

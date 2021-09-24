@@ -24,7 +24,7 @@ LLVMFuzzerTestOneInput(const char *data, size_t size) {
 int main(int argc, char** argv)
 {
     FILE * fp;
-    uint8_t *Data;
+    char *Data;
     size_t Size;
 
     if (argc != 2) {
